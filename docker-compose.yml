@@ -1,0 +1,11 @@
+
+version: '3'
+
+services:
+  pixelizer:
+    container_name: pixelizer
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+     - ./:/app

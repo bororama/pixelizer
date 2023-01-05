@@ -1,0 +1,10 @@
+
+references:
+	https://en.wikipedia.org/wiki/Ordered_dithering
+
+
+steps for 1-bit pixel art
+	-adjust contrast( +65 ? )
+	-scale down image (nearest neighbor)
+		-the shortest side of the original rectangle should become 128px long
+	-apply bayer dithering with a 2 color palette (radioactive green and black)
