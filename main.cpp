@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include "BayerMatrix.hpp"
+#include "Color.hpp"
 
 using namespace cimg_library;
 
@@ -42,18 +43,6 @@ void	sprite_resize(int target_size, CImg<unsigned char> &image)
 	image.resize(image.width() * scaling_factor, image.height() * scaling_factor);
 }
 
-enum e_colors
-{
-	BLACK =	0x000000ff,
-	WHITE =	0xffffffff,
-	RED = 0xff0000ff,
-	GREEN =	0x00ff00ff,
-	BLUE = 0x0000ffff,
-	YELLOW = 0xffff00ff,
-	GREY  = 0x808080ff,
-	SP_RED = 0xad1519ff,
-	GUALDA = 0xfabd00ff
-};
 
 /*
 **	pseudocode:
@@ -68,17 +57,20 @@ enum e_colors
 
 void standard_ordered_dithering(unsigned int matrix_level, CImg<unsigned char> &image)
 {
-	std::vector<int>	palette(BLACK, GREEN);
+	std::vector<Color>	palette;
 	BayerMatrix			matrix(matrix_level);
-	float	factor;
-	char	attemp;
+	float				factor;
+	Color				attempted_color[3];
+	// overload Color assignment operator!!!
 
-
+	
 	cimg_forXY(image, x, y)
 	{
+
+		factor = matrix[x % matrix.side_length()][y % matrix.side_length()];
 		for (int z = 0; z < 3; ++z)
 		{
-			std::cout << (int)image(x, y, z) << std::endl;
+			(void)image(x, y, z);
 		}
 		return ;
 	}
