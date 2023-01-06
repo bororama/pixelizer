@@ -26,9 +26,13 @@ class Color
 
 		Color(void);
 		Color(int color_value);
+		Color(Color &c);
 		Color(int R, int G, int B, int A = 0xff);
 
-		int		operator[](int i);
+		int		&operator[](int i);
+		Color	&operator=(Color &c);
+		Color	&operator+(float n);
+		//Color	&operator-(Color &c);
 
 		int		get_bits(void);
 
@@ -44,5 +48,6 @@ int	get_green_byte(int color);
 int	get_blue_byte(int color);
 int	get_alpha_byte(int color);
 int	color32(char R, char G, char B, char A);
+int	color32(Color &c);
 
 std::ostream &operator<<(std::ostream &o, Color &c);

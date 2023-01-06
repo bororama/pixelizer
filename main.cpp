@@ -55,24 +55,42 @@ void	sprite_resize(int target_size, CImg<unsigned char> &image)
 **		Draw pixel using Color
 */
 
+
+/*
+	find closest color
+	
+	smallestdifference = color
+	for each element on the list
+		compute difference
+		if difference > smallest_difference
+		smallest_difference = difference
+		save element as closest_color
+	return closest_color;
+*/
+
 void standard_ordered_dithering(unsigned int matrix_level, CImg<unsigned char> &image)
 {
 	std::vector<Color>	palette;
 	BayerMatrix			matrix(matrix_level);
 	float				factor;
-	Color				attempted_color[3];
-	// overload Color assignment operator!!!
+	Color 				*input_color;
+	Color				attempted_color;
 
-	
+	//FIX BIT REPRESENTATION!!!
+
+	float	r = (float)256/4;
+
 	cimg_forXY(image, x, y)
 	{
-
+		input_color = new Color(image(x, y, 0), image(x, y, 1), image(x, y, 2));
 		factor = matrix[x % matrix.side_length()][y % matrix.side_length()];
+		attempted_color = *input_color + (r * (factor)); //factor could be normalized by substracting 1/2
 		for (int z = 0; z < 3; ++z)
 		{
-			(void)image(x, y, z);
+			image(x, y, z) = attempted_color[z];
 		}
-		return ;
+		delete input_color;
+		//return;
 	}
 
 }

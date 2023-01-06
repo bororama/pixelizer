@@ -22,9 +22,40 @@ Color::Color(int R, int G, int B, int A)
 	_bit_representation = color32(R, G, B, A);
 }
 
-int Color::operator[](int i)
+Color::Color(Color &c)
+{
+	*this = c;
+}
+
+int &Color::operator[](int i)
 {
 	return _channel[i];
+}
+
+Color &Color::operator=(Color  &c)
+{
+	for (int i = 0; i < 4; ++i)
+	{
+		_channel[i] = c[i];
+	}
+	_bit_representation = c.get_bits();
+
+	return *this;
+}
+
+Color	&Color::operator+(float n)
+{
+	Color c(*this);
+
+	std::cout << "added n = " << n << std::endl;
+	for (int i = 0; i < 4; ++i)
+	{
+		c[i] += n;
+	}
+
+	_bit_representation = color32(*this);
+
+	return *this;
 }
 
 int	Color::get_bits(void)
@@ -62,6 +93,11 @@ int		color32(char R, char G, char B, char A)
 	color = color & (A);
 
 	return color;
+}
+
+int		color32(Color &c)
+{
+	return color32(c[RED_CHANNEL], c[GREEN_CHANNEL], c[BLUE_CHANNEL], c[ALPHA_CHANNEL]);
 }
 
 std::ostream &operator<<(std::ostream &o, Color &c)
