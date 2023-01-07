@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 #include "BayerMatrix.hpp"
 #include "Color.hpp"
 
@@ -68,29 +69,64 @@ void	sprite_resize(int target_size, CImg<unsigned char> &image)
 	return closest_color;
 */
 
-void standard_ordered_dithering(unsigned int matrix_level, CImg<unsigned char> &image)
+Color	closest_color_in_palette(Color const &target_color, std::vector<Color> const palette)
 {
-	std::vector<Color>	palette;
+
+	if (!palette.size())
+		throw std::invalid_argument("Empty color-palette...");
+
+	Color 	closest_color(*(palette.begin()));
+	float	smallest_difference = RGBcolor_distance(target_color, closest_color);
+	float	current_difference = smallest_difference;
+
+	for (std::vector<Color>::const_iterator color = palette.begin(); color != palette.end(); ++color)
+	{
+		current_difference = RGBcolor_distance(target_color, *color);
+		if (current_difference < smallest_difference)
+		{
+			smallest_difference = current_difference;
+			closest_color = *color;
+		}
+	}
+	return closest_color;
+}
+
+
+//gamma correction according to theosib
+void pseudo_gamma_correction(CImg<unsigned char> &image)
+{
+	cimg_forXY(image, x, y)
+	{
+		for (int z = 0; z < 3; ++z)
+		{
+			image(x, y, z) = image(x,y,z) - sqrt(image(x, y, z));
+		}
+	}
+
+}
+
+void standard_ordered_dithering(unsigned int matrix_level, CImg<unsigned char> &image, std::vector<Color> palette, bool normalize = true)
+{
 	BayerMatrix			matrix(matrix_level);
 	float				factor;
-	Color 				*input_color;
-	Color				attempted_color;
+	Color 				input_color;
+	Color				target_color;
+	Color				output_color;
 
-	//FIX BIT REPRESENTATION!!!
-
+	//this r factor is screwing with more subtle palettes...
 	float	r = (float)256/4;
+
 
 	cimg_forXY(image, x, y)
 	{
-		input_color = new Color(image(x, y, 0), image(x, y, 1), image(x, y, 2));
+		input_color.assign(image(x, y, 0), image(x, y, 1), image(x, y, 2));
 		factor = matrix[x % matrix.side_length()][y % matrix.side_length()];
-		attempted_color = *input_color + (r * (factor)); //factor could be normalized by substracting 1/2
+		target_color = input_color + ((r * (factor - (0.5 * normalize)))); //factor could be normalized by substracting 1/2
+		output_color = closest_color_in_palette(target_color, palette);
 		for (int z = 0; z < 3; ++z)
 		{
-			image(x, y, z) = attempted_color[z];
+			image(x, y, z) = output_color[z];
 		}
-		delete input_color;
-		//return;
 	}
 
 }
@@ -98,10 +134,18 @@ void standard_ordered_dithering(unsigned int matrix_level, CImg<unsigned char> &
 int main()
 {
 	CImg<unsigned char> apavel("apavel.jpg");
+	std::vector<Color>	palette;
 
-	adjust_contrast( 65, apavel);
+	palette.push_back(BLACK);
+	//palette.push_back(WHITE);
+	palette.push_back(GREEN);
+	//palette.push_back(GUALDA);
+	//palette.push_back(SP_RED);
+
+	pseudo_gamma_correction(apavel);
+	adjust_contrast( 35, apavel);
 	sprite_resize(128, apavel);
-	standard_ordered_dithering(0, apavel);
+	standard_ordered_dithering(1, apavel, palette);
 	apavel.save("test.jpg");
 	return 0;
 }

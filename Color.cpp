@@ -15,14 +15,11 @@ Color::Color(int color_value)
 
 Color::Color(int R, int G, int B, int A)
 {
-	_channel[RED_CHANNEL] = R;	
-	_channel[GREEN_CHANNEL] = G;	
-	_channel[BLUE_CHANNEL] = B;	
-	_channel[ALPHA_CHANNEL] = A;
-	_bit_representation = color32(R, G, B, A);
+	assign(R, G, B, A);
 }
 
-Color::Color(Color &c)
+
+Color::Color(Color const &c)
 {
 	*this = c;
 }
@@ -32,7 +29,12 @@ int &Color::operator[](int i)
 	return _channel[i];
 }
 
-Color &Color::operator=(Color  &c)
+int Color::operator[](int i) const
+{
+	return _channel[i];
+}
+
+Color &Color::operator=(Color const &c)
 {
 	for (int i = 0; i < 4; ++i)
 	{
@@ -43,24 +45,84 @@ Color &Color::operator=(Color  &c)
 	return *this;
 }
 
-Color	&Color::operator+(float n)
+Color	Color::operator+(float constant)
 {
-	Color c(*this);
-
-	std::cout << "added n = " << n << std::endl;
-	for (int i = 0; i < 4; ++i)
-	{
-		c[i] += n;
-	}
-
-	_bit_representation = color32(*this);
-
-	return *this;
+	Color color_sum(
+			_channel[RED_CHANNEL] + constant,
+			_channel[GREEN_CHANNEL] + constant,
+			_channel[BLUE_CHANNEL] + constant);
+	
+	return color_sum;
 }
 
-int	Color::get_bits(void)
+Color	Color::operator+(Color const &c)
+{
+	Color color_sum(
+			_channel[RED_CHANNEL] + c[RED_CHANNEL],
+			_channel[GREEN_CHANNEL] + c[GREEN_CHANNEL],
+			_channel[BLUE_CHANNEL] + c[BLUE_CHANNEL]);
+	
+	return color_sum;
+}
+
+
+Color Color::operator-(Color const &c)
+{
+	Color color_difference(
+			_channel[RED_CHANNEL] - c[RED_CHANNEL],
+			_channel[GREEN_CHANNEL] - c[GREEN_CHANNEL],
+			_channel[BLUE_CHANNEL] - c[BLUE_CHANNEL]);
+	
+	return color_difference;
+}
+
+bool	Color::operator==(Color const &c) const
+{
+	for (int i = 0; i < 4; ++i)
+	{
+		if (_channel[i] != c[i])
+			return false;
+	}
+	return true;
+}
+
+bool	Color::operator!=(Color const &c) const
+{
+	return !(*this == c);
+}
+
+bool	Color::operator<(Color const &c) const	
+{
+	return (_channel[0] + _channel[1] + _channel[2] + _channel[3]) < (c[0] + c[1] + c[2] + c[3]);
+}
+
+bool	Color::operator<=(Color const &c) const
+{
+	return !(c < *this);
+}
+
+bool	Color::operator>(Color const &c) const
+{
+	return (c < *this);
+}
+
+bool	Color::operator>=(Color const &c) const
+{
+	return !(*this < c);
+}
+
+int	Color::get_bits(void) const
 {
 	return _bit_representation;
+}
+
+void	Color::assign(int R, int G, int B, int A)
+{
+	_channel[RED_CHANNEL] = R;	
+	_channel[GREEN_CHANNEL] = G;	
+	_channel[BLUE_CHANNEL] = B;	
+	_channel[ALPHA_CHANNEL] = A;
+	_bit_representation = color32(R, G, B, A);
 }
 
 int get_red_byte(int color)
@@ -98,6 +160,15 @@ int		color32(char R, char G, char B, char A)
 int		color32(Color &c)
 {
 	return color32(c[RED_CHANNEL], c[GREEN_CHANNEL], c[BLUE_CHANNEL], c[ALPHA_CHANNEL]);
+}
+
+//the actual distance number is the square root of the returned value
+//the alpha channel isn't considered
+float RGBcolor_distance(Color const &c, Color const &d)
+{
+	float distance = pow(c[0] - d[0], 2) + pow(c[1] - d[1], 2) + pow(c[2] - d[2], 2);
+
+	return distance;
 }
 
 std::ostream &operator<<(std::ostream &o, Color &c)

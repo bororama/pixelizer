@@ -1,6 +1,4 @@
 #include "BayerMatrix.hpp"
-#include <iomanip>
-#include <cmath>
 
 static float baseBayerMatrix[4] = {0, 2, 3, 1};
 
