@@ -31,9 +31,22 @@ void	adjust_contrast(int adjustment, CImg<unsigned char> &image)
 	{
 		for (int z = 0; z < 3; ++z)
 		{
-			image(x, y, z) = clamp_color(correction_factor * (image(x,y,z) - 128) + 128);
+			image(x, y, z) = clamp_color(correction_factor * (image(x, y, z) - 128) + 128);
 		}
 	}
+}
+
+void	adjust_brightness(int adjustment, CImg<unsigned char> &image)
+{
+	adjustment = clamp(adjustment, -255, 255);
+	cimg_forXY(image, x, y)
+	{
+		for (int z = 0; z < 3; ++z)
+		{
+			image(x, y, z) = clamp_color(image(x, y, z) + adjustment);
+		}
+	}
+
 }
 
 void	sprite_resize(int target_size, CImg<unsigned char> &image)
@@ -114,8 +127,7 @@ void standard_ordered_dithering(unsigned int matrix_level, CImg<unsigned char> &
 	Color				output_color;
 
 	//this r factor is screwing with more subtle palettes...
-	float	r = (float)256/4;
-
+	float	r = (float)256/ palette.size();
 
 	cimg_forXY(image, x, y)
 	{
@@ -131,21 +143,23 @@ void standard_ordered_dithering(unsigned int matrix_level, CImg<unsigned char> &
 
 }
 
-int main()
+int main(int argc, char **argv)
 {
-	CImg<unsigned char> apavel("apavel.jpg");
+	CImg<unsigned char> image(argv[1]);
 	std::vector<Color>	palette;
 
-	palette.push_back(BLACK);
-	//palette.push_back(WHITE);
-	palette.push_back(GREEN);
-	//palette.push_back(GUALDA);
-	//palette.push_back(SP_RED);
+	//parser argv -> arg obj {target-size, brightness, contrast, matrix-level, palette}
 
-	pseudo_gamma_correction(apavel);
-	adjust_contrast( 35, apavel);
-	sprite_resize(128, apavel);
-	standard_ordered_dithering(1, apavel, palette);
-	apavel.save("test.jpg");
+	palette.push_back(BLACK);
+//	palette.push_back(WHITE);
+	palette.push_back(GREEN);
+//	palette.push_back(GUALDA);
+//	palette.push_back(SP_RED);
+
+	adjust_brightness(std::atoi(argv[2]), image);
+	adjust_contrast(std::atoi(argv[3]), image);
+	sprite_resize(std::atoi(argv[4]), image);
+	standard_ordered_dithering(std::atoi(argv[5]), image, palette, (argv[6]));
+	image.save("test.jpg");
 	return 0;
 }
