@@ -1,10 +1,10 @@
-#include "CImg.h"
 #include <cstdint>
 #include <iostream>
 #include <algorithm>
 #include <cmath>
 #include "BayerMatrix.hpp"
 #include "Color.hpp"
+#include "Args.hpp"
 
 using namespace cimg_library;
 
@@ -145,21 +145,13 @@ void standard_ordered_dithering(unsigned int matrix_level, CImg<unsigned char> &
 
 int main(int argc, char **argv)
 {
-	CImg<unsigned char> image(argv[1]);
-	std::vector<Color>	palette;
+	Args				arguments(argc, argv);
+	CImg<unsigned char> image(arguments.image.c_str());
 
-	//parser argv -> arg obj {target-size, brightness, contrast, matrix-level, palette}
-
-	palette.push_back(BLACK);
-//	palette.push_back(WHITE);
-	palette.push_back(GREEN);
-//	palette.push_back(GUALDA);
-//	palette.push_back(SP_RED);
-
-	adjust_brightness(std::atoi(argv[2]), image);
-	adjust_contrast(std::atoi(argv[3]), image);
-	sprite_resize(std::atoi(argv[4]), image);
-	standard_ordered_dithering(std::atoi(argv[5]), image, palette, (argv[6]));
+	adjust_brightness(arguments.brightness, image);
+	adjust_contrast(arguments.contrast, image);
+	sprite_resize(arguments.target_size, image);
+	standard_ordered_dithering(arguments.matrix_level, image, arguments.palette, arguments.normalize);
 	image.save("test.jpg");
 	return 0;
 }
