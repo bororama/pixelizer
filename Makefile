@@ -2,9 +2,9 @@ NAME = pixelizer
 
 CXX = g++
 
-CXXFLAGS = -L/usr/X11R6/lib -lm -lpthread -lX11 -I./CImg
+CXXFLAGS = -L/usr/X11R6/lib -lm -lpthread -lX11 -I ./CImg -I includes
 
-SRCS = main.cpp Args.cpp Color.cpp BayerMatrix.cpp
+SRCS = srcs/main.cpp srcs/Color.cpp srcs/Args.cpp srcs/BayerMatrix.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
