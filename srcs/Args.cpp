@@ -13,7 +13,7 @@ bool 	Args::check_file_input(std::string file)
 		std::cerr << "File not found" << std::endl;
 		return false;
 	}
-	image = file;
+	this->image = file;
 	return true;
 }
 
@@ -55,10 +55,11 @@ Args::Args(int argc, char **argv)
 	this->target_size = check_target_size(cimg_option("-s", 128, "In pixels, shall be a power of two. Sets the size the shortest side of the output image."));
 	this->brightness = cimg_option("-b", 0, "Sets the image brightness.");
 	this->contrast = cimg_option("-c", 0, "Sets image's contrast.");
-	this->matrix_level = cimg_option("-m", 0, "Matrix' size");
+	this->matrix_level = cimg_option("-m", 1, "Matrix' size");
 	this->normalize = cimg_option("-n", false, "Set normalizing term");
 
-	this->image = check_file_input(argv[1]);
+	if (!check_file_input(argv[1]))
+		throw_error("usage: pixelizer \033[4mimage-file\033[0m [-bcmnsh]");
 	this->palette = create_palette(palette_name);
 }
 
